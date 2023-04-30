@@ -2,14 +2,11 @@ package org.example;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.hamcrest.Matcher.*;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
