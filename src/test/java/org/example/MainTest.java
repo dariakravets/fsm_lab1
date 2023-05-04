@@ -1,9 +1,11 @@
 package org.example;
 
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.*;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.testng.annotations.Test;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +25,7 @@ public class MainTest {
     private static ArrayList<String> fsm1;
     private static ArrayList<String> fsm2;
 
-    @BeforeAll
+    @BeforeGroups(groups = {"SetUp", "FSMCheck"})
     public static void setUpClass() {
         fsm1 = new ArrayList<>();
         fsm1.add("2");
@@ -51,7 +53,7 @@ public class MainTest {
         System.out.println("Running test: " + testInfo.getDisplayName());
     }
 
-    @Test
+    @Test(groups = "SetUp")
     public void testAlphabetGetter() {
         ArrayList<Character> expected1 = new ArrayList<>(Arrays.asList('a', 'b'));
         ArrayList<Character> result1 = Main.alphabetGetter(fsm1);
@@ -64,7 +66,7 @@ public class MainTest {
         assertIterableEquals(expected2, result2);
     }
 
-    @Test
+    @Test(groups = "SetUp")
     public void testGetAllWords() {
         ArrayList<String> expected1 = new ArrayList<>(Arrays.asList("aa", "ab", "ba", "bb"));
         ArrayList<Character> alphabet1 = new ArrayList<>(Arrays.asList('a', 'b'));
@@ -79,7 +81,7 @@ public class MainTest {
         assertThat(result2, containsInAnyOrder(expected2.toArray()));
     }
 
-    @Test
+    @Test(groups = "SetUp")
     public void testStatesGetter() {
         ArrayList<Character> expected1 = new ArrayList<>(Arrays.asList('0', '1'));
         ArrayList<Character> result1 = Main.statesGetter(fsm1);
@@ -90,7 +92,7 @@ public class MainTest {
         assertEquals(expected2, result2, "Failed for FSM2");
     }
 
-    @Test
+    @Test(groups = "SetUp")
     public void testFinalStatesGetter() {
         ArrayList<Character> expected1 = new ArrayList<>(Arrays.asList('1'));
         ArrayList<Character> result1 = Main.finalStatesGetter(fsm1);
@@ -105,7 +107,7 @@ public class MainTest {
         assertThat(result2, containsInAnyOrder(expected2.toArray()));
     }
 
-    @Test
+    @Test(groups = "FSMCheck")
     public void testCheckerFSM() {
         boolean result1 = Main.checkerFSM(fsm1, 2);
         assertTrue(result1);
@@ -113,13 +115,13 @@ public class MainTest {
         assertThat(result2, equalTo(false));
     }
 
-    @Test
+    @Test(groups = "FSMCheck")
     public void testCheckerFSMException() {
         assertThrows(StackOverflowError.class, () -> Main.checkerFSM(fsm1, 0));
         assertThrows(StackOverflowError.class, () -> Main.checkerFSM(fsm2, 0));
     }
 
-    @Test
+    @Test(groups = {"SetUp","FSMCheck"})
     public void testMainMethod() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
@@ -143,5 +145,26 @@ public class MainTest {
     public void testCheckerFSMWithParameterized(int number) {
         boolean result = Main.checkerFSM(fsm1, number);
         assertTrue(result);
+    }
+
+    @DataProvider(name = "testData")
+    public Object[][] testData() {
+        ArrayList<String> fsm1 = new ArrayList<>(Arrays.asList("2", "2", "0", "1 1", "0 a 1", "0 b 1", "1 a 1", "1 b 1"));
+        ArrayList<String> fsm2 = new ArrayList<>(Arrays.asList("4", "3", "0", "1 1", "0 a 1", "0 c 1", "1 a 2", "1 b 2", "2 c 3", "2 b 3"));
+
+        ArrayList<Character> expected1 = new ArrayList<>(Arrays.asList('a', 'b'));
+        ArrayList<Character> expected2 = new ArrayList<>(Arrays.asList('a', 'b', 'c'));
+
+        Object[][] testData = {
+                {fsm1, expected1},
+                {fsm2, expected2}
+        };
+        return testData;
+    }
+
+    @Test(dataProvider = "testData")
+    public void testAlphabetGetterData(ArrayList<String> fsm, ArrayList<Character> expected){
+        ArrayList<Character> result = Main.alphabetGetter(fsm);
+        assertThat(result, containsInAnyOrder(expected.toArray()));
     }
 }
